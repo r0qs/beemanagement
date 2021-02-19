@@ -49,7 +49,11 @@ function getUncashedAmount() {
 function cashout() {
   local peer=$1
   txHash=$(curl -s -XPOST "$DEBUG_API/chequebook/cashout/$peer" | jq -r .transactionHash) 
-
+  if [ "$txHash" == "null" ]
+  then
+    echo "error while trying to cash the cheque, please check your connection with the swap endpoint" >&2
+    return
+  fi
   echo cashing out cheque for $peer in transaction $txHash >&2
 
   result="$(curl -s $DEBUG_API/chequebook/cashout/$peer | jq .result)"
