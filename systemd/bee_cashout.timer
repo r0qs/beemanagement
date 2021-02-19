@@ -1,0 +1,9 @@
+[Unit]
+Description=Bee Cashout Daily Routine
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
