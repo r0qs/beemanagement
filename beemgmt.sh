@@ -53,10 +53,10 @@ usage()
   echo ""
   echo "./beemgmt.sh"
   echo "  --help"
-  echo "  --install"
-  echo "  --remove"
-  echo "  --start"
-  echo "  --stop"
+  echo "  --install install the cashout scripts (default: ${INSTALL_DIR})"
+  echo "  --remove  uninstall the cashout scripts"
+  echo "  --start   enable and start the systemd timer"
+  echo "  --stop    stop and disable the systemd timer"
   echo ""
 }
 
