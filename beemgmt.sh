@@ -52,16 +52,17 @@ usage()
   echo "Bee Management Scripts"
   echo ""
   echo "./beemgmt.sh"
-  echo "--help"
-  echo "--install"
-  echo "--remove"
-  echo "--start"
-  echo "--stop"
+  echo "  --help"
+  echo "  --install"
+  echo "  --remove"
+  echo "  --start"
+  echo "  --stop"
   echo ""
 }
 
-while [ "$1" != "" ]; do
-  cmd=`echo $1 | awk -F= '{print $1}'`
+[[ "$#" -ne 1 ]] && { usage; exit 1; }
+while [ "${1}" != "" ]; do
+  cmd=`echo ${1} | awk -F= '{print $1}'`
   case $cmd in
     --help)
       usage
