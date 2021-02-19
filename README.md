@@ -1,6 +1,4 @@
-# beemanagement
-
-Bee cheque management scripts
+# Bee cheque management scripts
 
 This script install a [systemd timers](https://wiki.archlinux.org/index.php/Systemd/timers) in your bee node to perform daily (or weekly) cashout of the node cheques.
 
