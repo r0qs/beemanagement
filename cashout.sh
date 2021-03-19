@@ -55,7 +55,7 @@ function cashout() {
   txHash=$(curl -s -XPOST "$DEBUG_API/chequebook/cashout/$peer" | jq -r .transactionHash)
   if [ "$txHash" == "null" ]
   then
-    echo "error while trying to cash the cheque, please check your connection with the swap endpoint" >&2
+    echo "error while trying to cashout the cheque, please check your connection with the swap endpoint" >&2
     return
   fi
   echo cashing out cheque for $peer in transaction $txHash >&2
@@ -64,7 +64,7 @@ function cashout() {
   while [ "$result" == "null" ]
   do
     if ((retry == 0)); then
-      echo -e "all ${MAX_RETRIES} attempts to cashout $peer in transaction $txHash $FAIL\0fail! Skipping...$NONE" >&2
+      echo -e "all ${MAX_RETRIES} attempts to cashout cheque for peer $peer in transaction $txHash $FAIL\0failed! Skipping...$NONE" >&2
       return
     fi
     sleep 5
@@ -76,7 +76,7 @@ function cashout() {
 }
 
 function cashoutAll() {
-  echo "searching for uncashed cheques for node $PORT..." >&2
+  echo "searching uncashed cheques for node $PORT..." >&2
   for peer in $(getPeers)
   do
     local uncashedAmount=$(getUncashedAmount $peer)
