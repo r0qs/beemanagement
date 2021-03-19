@@ -1,10 +1,14 @@
 #1/usr/bin/env sh
-
 # This script is based on the following:
 # https://gist.github.com/ralph-pichler/3b5ccd7a5c5cd0500e6428752b37e975#file-cashout-sh
 
 DEBUG_API=http://localhost:$PORT
-MIN_AMOUNT=1000
+MIN_AMOUNT=1000000000000 # 0.0001gBZZ
+MAX_RETRIES=5
+FAIL="\033[31;40m"
+SUCCESS="\033[32;40m"
+WARNING="\033[33;40m"
+NONE="\033[0m"
 
 function getPeers() {
   curl -s "$DEBUG_API/chequebook/cheque" | jq -r '.lastcheques | .[].peer'
@@ -48,31 +52,39 @@ function getUncashedAmount() {
 
 function cashout() {
   local peer=$1
-  txHash=$(curl -s -XPOST "$DEBUG_API/chequebook/cashout/$peer" | jq -r .transactionHash) 
+  txHash=$(curl -s -XPOST "$DEBUG_API/chequebook/cashout/$peer" | jq -r .transactionHash)
   if [ "$txHash" == "null" ]
   then
     echo "error while trying to cash the cheque, please check your connection with the swap endpoint" >&2
     return
   fi
   echo cashing out cheque for $peer in transaction $txHash >&2
-
+  local retry=${MAX_RETRIES}
   result="$(curl -s $DEBUG_API/chequebook/cashout/$peer | jq .result)"
   while [ "$result" == "null" ]
   do
+    if ((retry == 0)); then
+      echo -e "all ${MAX_RETRIES} attempts to cashout $peer in transaction $txHash $FAIL\0fail! Skipping...$NONE" >&2
+      return
+    fi
     sleep 5
+    echo -e "$WARNING\0retrying$NONE tx $txHash due fail with '$result'..." >&2
+    retry=$(( retry - 1 ))
     result=$(curl -s $DEBUG_API/chequebook/cashout/$peer | jq .result)
   done
+  echo -e "transaction $txHash $SUCCESS\0successfully$NONE executed." >&2
 }
 
 function cashoutAll() {
-  local minAmount=$1
+  echo "searching for uncashed cheques for node $PORT..." >&2
   for peer in $(getPeers)
   do
     local uncashedAmount=$(getUncashedAmount $peer)
-    if (( "$uncashedAmount" > $minAmount ))
+    if (( "$uncashedAmount" > $MIN_AMOUNT ))
     then
       echo "uncashed cheque for $peer ($uncashedAmount uncashed)" >&2
       cashout $peer
+      echo "----------------------------------------------------" >&2
     fi
   done
 }
@@ -91,7 +103,7 @@ function listAllUncashed() {
 main() {
   case "${1}" in
     cashout) cashout $2;;
-    cashout-all) cashoutAll $MIN_AMOUNT;;
+    cashout-all) cashoutAll;;
     list-uncashed|*) listAllUncashed;;
   esac
 }

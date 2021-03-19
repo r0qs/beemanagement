@@ -3,7 +3,7 @@
 CASHOUT_THRESHOLD=5
 source ./cashout.sh --crontab
 
-function givemoney() {
+function givememoney() {
   local n=0
   local list=($(listAllUncashed))
   for (( i=0; i<${#list[@]}; i+=2 ))
@@ -15,4 +15,4 @@ function givemoney() {
   fi
 }
 
-givemoney
+givememoney
