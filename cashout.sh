@@ -4,7 +4,7 @@
 
 DEBUG_API=http://localhost:$PORT
 MIN_AMOUNT=1000000000000 # 0.0001gBZZ
-MAX_RETRIES=5
+MAX_RETRIES=3
 FAIL="\033[31;40m"
 SUCCESS="\033[32;40m"
 WARNING="\033[33;40m"
@@ -64,15 +64,15 @@ function cashout() {
   while [ "$result" == "null" ]
   do
     if ((retry == 0)); then
-      echo -e "all ${MAX_RETRIES} attempts to cashout cheque for peer $peer in transaction $txHash $FAIL\0failed! Skipping...$NONE" >&2
+      echo -e "all ${MAX_RETRIES} attempts to cashout cheque for peer $peer in transaction $txHash ${FAIL}failed! Skipping...${NONE}" >&2
       return
     fi
-    sleep 5
-    echo -e "$WARNING\0retrying$NONE tx $txHash due fail with '$result'..." >&2
+    sleep 10
+    echo -e "${WARNING}retrying${NONE} tx $txHash due fail with '$result'..." >&2
     retry=$(( retry - 1 ))
     result=$(curl -s $DEBUG_API/chequebook/cashout/$peer | jq .result)
   done
-  echo -e "transaction $txHash $SUCCESS\0successfully$NONE executed." >&2
+  echo -e "transaction $txHash ${SUCCESS}successfully${NONE} executed." >&2
 }
 
 function cashoutAll() {
